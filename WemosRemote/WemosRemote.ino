@@ -1,5 +1,6 @@
 #include "WemosRemote.h"
 #include "UserData.h"
+#include "FS.h"
 
 const uint16_t kIrLed = 12;
 const uint16_t kRecvPin = 14;
@@ -10,6 +11,7 @@ IRrecv irrecv(kRecvPin);
 decode_results results;
 
 WiFiClient wclient; 
+ESP8266WebServer server(80);
 PubSubClient client(mqtt_server, mqtt_port, callback, wclient);
 
 void blinkLed(){
@@ -105,7 +107,9 @@ void connectToWiFi(){
     Serial.print("Connecting to ");
     Serial.print(ssid);
     Serial.println("...");
+    WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid, pass);
+    WiFi.softAP("I am esp 8266!", "12345678");
     if (WiFi.waitForConnectResult() != WL_CONNECTED) return;
     Serial.println("WiFi connected");
   }
@@ -114,15 +118,94 @@ void connectToWiFi(){
 void connectToMQTT(){
   String clientId = "ESP8266Client-";
   clientId += String(random(0xffff), HEX);
+  Serial.println("Server");
+  Serial.println(mqtt_server);
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callback);
   if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
     Serial.println("Connected to MQTT server ");
-    client.setServer(mqtt_server, mqtt_port);
-    client.setCallback(callback);
     digitalWrite(ledPin, 0);
     subscribeToAllTopics();
    } 
   else
     Serial.println("Could not connect to MQTT server"); 
+}
+
+String getStringFromFile(String path){
+  File f = SPIFFS.open(path, "r");
+  if (!f) {
+      Serial.println("file open failed");
+      return "";
+  }
+  String str = "";
+  while (f.available())
+    str += (char)f.read();
+  return str;
+}
+
+void writeStringToFile(String str, String path){
+  File f = SPIFFS.open(path, "w");
+  if (!f) {
+      Serial.println("file open failed");
+      return;
+  }
+  f.print(str);
+  f.close();
+}
+
+void loadPage(String page){
+  File f = SPIFFS.open(page, "r");
+  if (!f) {
+      Serial.println("file open failed");
+      return;
+  }
+  String index = "";
+  while (f.available())
+    index += (char)f.read();
+  server.send(200, "text/html", index);
+}
+
+void handleRoot() {
+  loadPage("/index.html");
+}
+
+char* convertToCharArray(String str){
+  unsigned char* buf = new unsigned char[100];
+  str.getBytes(buf, 100, 0);
+  return (char*)buf;
+}
+
+void wifiSetup(){
+  loadPage("/wifi.html");
+}
+
+void mqttSetup(){
+  loadPage("/mqtt.html");
+}
+
+void wifiSubmit(){
+  loadPage("/submit.html");
+  ssid = convertToCharArray(server.arg("wifissid"));
+  pass = convertToCharArray(server.arg("wifipass"));
+  writeStringToFile(server.arg("wifissid"), "/wifissid.txt");
+  writeStringToFile(server.arg("wifipass"), "/wifipass.txt");
+  Serial.println(ssid);
+  Serial.println(pass);
+  WiFi.disconnect();
+}
+
+void mqttSubmit(){
+  loadPage("/submit.html");
+  mqtt_server = convertToCharArray(server.arg("address"));
+  mqtt_user = convertToCharArray(server.arg("username"));
+  mqtt_pass = convertToCharArray(server.arg("password"));
+  writeStringToFile(server.arg("address"), "/mqttaddress.txt");
+  writeStringToFile(server.arg("username"), "/mqttusername.txt");
+  writeStringToFile(server.arg("password"), "/mqttpassword.txt");
+  Serial.println(mqtt_server);
+  Serial.println(mqtt_user);
+  Serial.println(mqtt_pass);
+  client.disconnect();
 }
 
 void setup() {
@@ -132,10 +215,24 @@ void setup() {
   Serial.begin(115200);
   delay(10);
   Serial.println("\n");
+  SPIFFS.begin();
+  mqtt_server = convertToCharArray(getStringFromFile("/mqttaddress.txt"));
+  mqtt_user = convertToCharArray(getStringFromFile("/mqttusername.txt"));
+  mqtt_pass = convertToCharArray(getStringFromFile("/mqttpassword.txt"));
+  ssid = convertToCharArray(getStringFromFile("/wifissid.txt"));
+  pass = convertToCharArray(getStringFromFile("/wifipass.txt"));
+  server.begin();
+  server.on("/", handleRoot);
+  server.on("/led", blinkLed);
+  server.on("/mqtt", mqttSetup);
+  server.on("/wifi", wifiSetup);
+  server.on("/submit/mqtt", mqttSubmit);
+  server.on("/submit/wifi", wifiSubmit);
 }
 
 void loop() {
-   connectToWiFi();
+  server.handleClient();
+  connectToWiFi();
   if (WiFi.status() == WL_CONNECTED) {
     if (!client.connected()) {
       Serial.print("Connecting to MQTT server ");
@@ -143,9 +240,8 @@ void loop() {
       Serial.println("...");
       connectToMQTT();
     }
-    if (client.connected()){
+    if (client.connected())
       client.loop();
-    }
     else
       digitalWrite(ledPin, 1);
   }
