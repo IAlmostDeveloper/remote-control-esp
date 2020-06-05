@@ -1,4 +1,20 @@
 <html>
+	<style type="text/css">
+		.mybtn{
+			width:300px;
+			height:60px;
+			font-size: 30px;
+			margin-left: auto; 
+			margin-right: auto; 
+			color: rgb(0, 45, 156); 
+		}
+		p{
+			width:300px;height:30px;font-size: 20px; color: rgb(0, 45, 156);
+		}
+		input{
+			width:300px;height:30px;font-size: 20px;margin-left: auto; margin-right: auto; color: rgb(0, 45, 156);
+		}
+	</style>
 	<body>
 		<h2>Wifi settings</h2>
 		<form action="submit/wifi" method="POST">
@@ -6,9 +22,9 @@
 			<input type="text" name="wifissid">
 			<br>
 			<p>WiFi password</p>
-			<input type="text" name="wifipass">
+			<input type="password" name="wifipass">
 			<br>
-			<p><input type="submit"></p>
+			<p><input class="mybtn" type="submit" value="Apply"></p>
  		</form>
 	</body>
 </html>
