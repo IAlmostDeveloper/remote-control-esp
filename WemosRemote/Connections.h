@@ -8,13 +8,15 @@ void subscribeToAllTopics(){
 }
 
 bool connectToWiFi(){
+  String apSsid = "RemoteControl-";
+  apSsid += 1;
   if (WiFi.status() != WL_CONNECTED) {
     Serial.print("Connecting to ");
     Serial.print(ssid);
     Serial.println("...");
     WiFi.mode(WIFI_AP_STA);
     WiFi.begin(ssid, pass);
-    WiFi.softAP("I am esp 8266!", "12345678");
+    WiFi.softAP(apSsid, "12345678");
     if (WiFi.waitForConnectResult() != WL_CONNECTED) return false;
     Serial.println("WiFi connected");
     return true;
@@ -33,7 +35,10 @@ bool connectToMQTT(){
     Serial.println("Connected to MQTT server ");
     
     subscribeToAllTopics();
+    return true;
    } 
-  else
+  else{
     Serial.println("Could not connect to MQTT server"); 
+    return false;
+    }
 }
