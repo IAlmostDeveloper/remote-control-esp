@@ -1,5 +1,6 @@
 WiFiClient wclient; 
 ESP8266WebServer server(80);
+void callback(char* topic, byte* payload, unsigned int length);
 PubSubClient client(mqtt_server, mqtt_port, callback, wclient);
 
 void subscribeToAllTopics(){

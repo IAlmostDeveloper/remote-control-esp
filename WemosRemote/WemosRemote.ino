@@ -1,9 +1,4 @@
 #include "WemosRemote.h"
-#include "UserData.h"
-#include "Files.h"
-#include "Connections.h"
-#include "Controls.h"
-#include "Web.h"
 
 void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
@@ -26,6 +21,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 void setup() {
   pinMode(ledPin, OUTPUT);
+  pinMode(resetPin, INPUT_PULLUP);
   digitalWrite(ledPin,1);
   irsend.begin();
   Serial.begin(115200);
@@ -50,12 +46,18 @@ void setup() {
 void loop() {
   server.handleClient();
   connectToWiFi();
+  checkForReset();
   if (WiFi.status() == WL_CONNECTED) {
     if (!client.connected()) {
       Serial.print("Connecting to MQTT server ");
       Serial.print(mqtt_server);
       Serial.println("...");
-      if(connectToMQTT()) digitalWrite(ledPin, 0);
+      if(connectToMQTT()) {
+        WiFi.mode(WIFI_STA);
+        WiFi.softAPdisconnect(false);
+        WiFi.enableAP(false);
+        digitalWrite(ledPin, 0);
+        }
     }
     if (client.connected())
       client.loop();

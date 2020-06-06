@@ -9,8 +9,13 @@
 #include <IRsend.h>
 #include <IRrecv.h>
 #include <IRutils.h>
+#include "UserData.h"
+#include "Files.h"
+#include "Connections.h"
+#include "Controls.h"
+#include "Web.h"
+#include "Reset.h"
 
-void callback(char* topic, byte* payload, unsigned int length);
 unsigned long getCodeFromPayload(byte* payload, unsigned int length);
 unsigned long receiveCode();
 void sendCode(byte* payload, unsigned int length, String encoding);
