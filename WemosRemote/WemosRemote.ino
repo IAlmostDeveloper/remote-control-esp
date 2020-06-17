@@ -11,9 +11,30 @@ void callback(char* topic, byte* payload, unsigned int length) {
       encoding = "RC5";
     if(currentTopic.endsWith("/NECController"))
       encoding = "NEC";
-
-    sendCode(payload, length, encoding);
-  }  
+    unsigned long code = getCodeFromPayload(payload, length);
+    sendCode(code, encoding);
+  }
+  if(currentTopic.endsWith("Controller/delay")){
+    const size_t capacity = JSON_OBJECT_SIZE(3) + JSON_ARRAY_SIZE(2) + 60;
+    DynamicJsonBuffer jsonBuffer(capacity);
+    JsonObject& root = jsonBuffer.parseObject(payload);
+    if (!root.success()) {
+      Serial.println(F("Parsing failed!"));
+      return;
+    }
+    if(currentTopic.endsWith("/RC5Controller/delay"))
+      encoding = "RC5";
+    if(currentTopic.endsWith("/NECController/delay"))
+      encoding = "NEC";
+    String rawCode = root["code"].as<String>();
+    char arr[rawCode.length() + 1];
+    rawCode.toCharArray(arr, rawCode.length() + 1);
+    unsigned long code = strtol(arr, NULL, 16);
+    int delayTime = root["delay"].as<int>();
+    Serial.println(code);
+    Serial.println(delayTime);
+    sendCodeWithDelay(code, encoding, delayTime);
+  }
   if(currentTopic.endsWith("/receive")){
     sendReceivedCode(payload, length);
   }

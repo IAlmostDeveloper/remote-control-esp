@@ -23,14 +23,17 @@ unsigned long getCodeFromPayload(byte* payload, unsigned int length){
   return code;
 }
 
-void sendCode(byte* payload, unsigned int length, String encoding){
-  unsigned long code = getCodeFromPayload(payload, length);
-  Serial.println(code, HEX);
+void sendCode(unsigned long code, String encoding){
   if(encoding=="RC5")
     irsend.sendRC5(code);
   if(encoding=="NEC")
     irsend.sendNEC(code);
   blinkLed();
+}
+
+void sendCodeWithDelay(unsigned long code, String encoding, int delayTime){
+  sendCode(code, encoding);
+  delay(delayTime);
 }
 
 unsigned long receiveCode(){
