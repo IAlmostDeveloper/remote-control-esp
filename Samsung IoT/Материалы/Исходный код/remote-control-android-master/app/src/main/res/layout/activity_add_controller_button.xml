@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorAccent"
+    android:orientation="vertical"
+    tools:context=".activities.AddControllerButtonActivity">
+
+    <TextView
+        android:id="@+id/buttonNameLabel"
+        style="@style/TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button name:"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <EditText
+        android:id="@+id/addControllerButtonNameInput"
+        style="@style/EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/buttonNameLabel"/>
+
+    <TextView
+        android:id="@+id/buttonCodeLabel"
+        style="@style/TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button code:"
+        app:layout_constraintTop_toBottomOf="@id/addControllerButtonNameInput"/>
+
+    <EditText
+        android:id="@+id/addControllerButtonCodeInput"
+        style="@style/EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/buttonCodeLabel"/>
+
+    <Button
+        android:id="@+id/getCodeFromReceiverButton"
+        style="@style/Button"
+        android:layout_width="130dp"
+        android:layout_height="100dp"
+        android:text="Get code from receiver"
+        android:drawableTop="@drawable/ic_action_controller"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/addControllerButtonCodeInput"/>
+
+    <Button
+        android:id="@+id/addControllerButtonApply"
+        style="@style/Button"
+        android:layout_width="130dp"
+        android:layout_height="100dp"
+        android:text="Apply"
+        android:drawableTop="@drawable/ic_action_apply"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/addControllerButtonCodeInput"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
