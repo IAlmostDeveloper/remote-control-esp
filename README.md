@@ -12,10 +12,13 @@
 - IRRemoteESP8266
 - PubSubClient
 
+Все библиотеки устанавливаются через менеджер библиотек в Arduino IDE
+
 ### Инструкция по сборке:
 - Собирать как проект в среде разработки Arduino IDE
-
-
+- Необходимо установить утилиту ESP8266FS для записи файловой системы в контроллер, а затем загрузить файловую систему через Arduino IDE
+- Как загрузить файловую систему в esp8266: http://digitrode.ru/computing-devices/mcu_cpu/2186-ustanavlivaem-zagruzchik-faylovoy-sistemy-esp8266-s-pomoschyu-arduino-ide.html 
+### 
 ## Cхема устройства:
 
 ![](https://i.ibb.co/TtbbBcB/Screenshot-20200628-122428.png)
