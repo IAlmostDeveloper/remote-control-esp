@@ -63,7 +63,7 @@ void setup() {
   server.on("/submit/mqtt", mqttSubmit);
   server.on("/submit/wifi", wifiSubmit);
 }
-
+unsigned long lastMsg = 0;
 void loop() {
   server.handleClient();
   connectToWiFi();
@@ -80,8 +80,14 @@ void loop() {
         digitalWrite(ledPin, 0);
       }
     }
-    if (client.connected())
+    if (client.connected()){
       client.loop();
+      if(millis()-lastMsg>30000){
+        lastMsg = millis();
+        Serial.print("Publish message: alive");
+        client.publish("remoteControl/devices/1/alive", "1");
+      }
+    }
     else
       digitalWrite(ledPin, 1);
   }
