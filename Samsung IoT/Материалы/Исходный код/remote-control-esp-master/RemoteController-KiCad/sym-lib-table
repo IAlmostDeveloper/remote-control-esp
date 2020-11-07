@@ -1,3 +1,0 @@
-(sym_lib_table
-  (lib (name RemoteController-rescue)(type Legacy)(uri ${KIPRJMOD}/RemoteController-rescue.lib)(options "")(descr ""))
-)
